@@ -1,10 +1,12 @@
 
 import os
 
+from decouple import config
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'otpg&ltz7tscx3i)lr463&4u$ywtrzix97*w6=41_r-$#dl&v5'
+SECRET_KEY = config("SECRET_KEY", cast=str)
 
 DEBUG = True
 
