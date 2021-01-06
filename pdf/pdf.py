@@ -1,47 +1,66 @@
 
 import os
+import random
+import shutil
 import time
 import tkinter as tk
-from shutil import move as file_mover
+import warnings
+from datetime import datetime
 from tkinter import filedialog
 
 import PyPDF2
-from tqdm import tqdm
+from art import tprint
 
 # I assume that pdfs are in this current directory
 # Make sure that the files are named using sorting
+tprint("PDF Tools")
 
+print("""
+Use this tool to combine pdf files.
+Please select files in order of ranking as the 
+order will not be changed in merging.
 
-userfilename = input('Name of file: ')
+        Thank you!!!
+""")
+print("##################################\n")
+userfilename = input(
+    'Enter name of file or \n Press enter to assign randomly:\n>>> ')
 if userfilename == "":
-    userfilename = "r_name"
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    date = datetime.now().date()
+    userfilename = "1_Combined_on_%s" % date
 
-destination = os.path.join(BASE_DIR, "final")
-if not os.path.isdir(destination):
-    os.mkdir(destination)
 
-root = tk.Tk()
-root.withdraw()
-filepath = filedialog.askopenfilenames()
-print(filepath)
+def change_files_order(l1, l2):
+    new_list = []
+    return new_list
 
-# pdf2merge = []
-# os.chdir(BASE_DIR)
-# for filename in os.listdir('.'):
-#     if filename.endswith('.pdf'):
-#         pdf2merge.append(filename)
 
-# print("The following files were detected:")
-# for i in pdf2merge:
-#     print(i)
+def get_file():
+    directory = os.getcwd()
+    path = os.path.join(
+        directory, f"{userfilename.title()}.pdf")
+    return path
 
-# print('To change order. Please, sort files based on number.')
 
-# proceed = input("Press enter key to continue, or press any key to continue")
+def move_pdf(destination):
+    files = get_file()
+    try:
+        shutil.move(files, destination)
+    except shutil.Error:
+        proceed = input(
+            "The file with same name exists:\nReplace? .... 'Y' or 'N'\n### ")
+        if proceed.lower() == 'y':
+            shutil.move(files, os.path.join(
+                destination, f"{userfilename.title()}.pdf"))
+        elif proceed.lower() == 'n':
+            shutil.move(files, os.path.join(
+                destination, f"{userfilename.title()}_{random.randint(10,50)}.pdf"))
+        else:
+            exit()
 
 
 def merge_pdf(files):
+    warnings.filterwarnings('ignore')
     pdfWriter = PyPDF2.PdfFileWriter()
 
     # loop through all PDFs
@@ -59,29 +78,31 @@ def merge_pdf(files):
     pdfWriter.write(pdfOutput)
     # Closing the PDF writer
     pdfOutput.close()
+    print("##############\nSelect where the file will be saved.\n########\n")
     destination = filedialog.askdirectory()
-
-    file_mover(os.path.join(BASE_DIR, userfilename.title()+".pdf"),
-               os.path.join(destination, userfilename.title()+".pdf"))
-
-
-# if proceed == '':
-#     merge_pdf()
-#     print("Done")
-#     print("This window will close in:")
-#     for i in tqdm(range(0, 10)):
-#         time.sleep(0.5)
-#     exit()
-
-# else:
-#     print("Thank you for checking out with us")
-#     for i in tqdm(range(0, 30)):
-#         time.sleep(0.1)
-#     exit()
+    move_pdf(destination)
+    print("\n################\nFiles have been merged.\n########\n")
 
 
-"""
-If you face an error regarding multiple dictionary keys,
-you have to edit the source code of the pypdf in your 
-site packages and pass the error part
-"""
+root = tk.Tk()
+root.withdraw()
+print("##################################\n")
+print("Please, choose the files to merge.")
+print("##################################\n")
+filepath = filedialog.askopenfilenames()
+if len(filepath) <= 1:
+    print("You did not choose files.")
+    tprint("BYE")
+    time.sleep(3)
+    exit()
+print("##################################\n")
+print("The following files will be merged.")
+for (i, item) in enumerate(filepath, start=1):
+    item = item.split("/")[-1]
+    print("# %s. >>%s" % (i, item))
+time.sleep(1)
+
+
+merge_pdf(filepath)
+tprint("Thank You")
+time.sleep(3)
