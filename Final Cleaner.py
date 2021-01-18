@@ -1,5 +1,6 @@
 import os
 import random
+import re
 import shutil
 import stat
 
@@ -58,6 +59,11 @@ def remove_readonly(func, path, excinfo):
     os.chmod(path, stat.S_IWRITE)
     func(path)
 
+def is_episode(name):
+    match = re.match(r'.*(s[0-9]{2}e[0-9]{2})', name.lower())
+    if match:
+        return match.group(1)
+    return None
 
 print("""
 Let us get to know each other, Am Fahrer Feyton Fabruce the author of this script.\nWhat About you?""")
@@ -195,14 +201,14 @@ if answer == '1':
         "If fou want directories deleted. Type in 'Yes'\n Else, type in any letter to continue: \n >> ")
 
     if folder_delete.lower() == 'yes':
-        for a, b, c in os.walk(BASE_DIR, topdown=True):
+        for a, b, c in os.walk(BASE_DIR, topdown=False):
             for fold in b:
                 p = os.path.join(a, fold)
                 try:
                     os.rmdir(p)
                 except Exception:
                     print(
-                        f'This folder {p} \ncannot be deleted because it contains file')
+                        f'This folder {p} \ncannot be deleted because it contains files')
         dare = input(f"""
         {user.capitalize()}
         We Tried to delete empty folders.
